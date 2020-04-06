@@ -33,6 +33,10 @@ app_kwh = {
     'WASH': 1.94,
     'DISH': 1.44
 }
+cost = {
+    'offpeak': 0.5,
+    'peak': 1
+}
 # -> optimal total_cost <= 6.64NOK in off-peak hours (0.5nok/kwh)
 
 # peak hours: 17:00-20:00 -> 1NOK/kWh
@@ -66,31 +70,29 @@ dish1 + dish2 = 1.44 kwh (total consumption per day)
 dish1 <= 0.72
 dish2 <= 0.72
 """
-ev_per_hour = 4.95
+ev_per_hour = app_kwh['EV']/2 #4.95
 ev1 = LpVariable("EV_PerHour1", 0)
 ev2 = LpVariable("EV_PerHour2", 0)
-wash_per_hour = 0.97
+wash_per_hour = app_kwh['WASH']/2 #0.97
 wash1 = LpVariable("WASH_PerHour1", 0)
 wash2 = LpVariable("WASH_PerHour2", 0)
-dish_per_hour = 0.72
+dish_per_hour = app_kwh['DISH']/2 #0.72
 dish1 = LpVariable("DISH_PerHour1", 0)
 dish2 = LpVariable("DISH_PerHour2", 0)
-cost_offpeak = 0.5
-cost_peak = 1
 
 # The objective function is added to the 'problem' first
 #drm_problem += ev1*ev_per_hour + ev2*ev_per_hour \
 #               + wash1*wash_per_hour + wash2*wash_per_hour \
 #               + dish1*dish_per_hour + dish2*dish_per_hour, "Total consumption of all appliances"
 
-drm_problem += cost_offpeak*ev1 + cost_offpeak*ev2 \
-               + cost_offpeak*wash1 + cost_offpeak*wash2 \
-               + cost_offpeak*dish1 + cost_offpeak*dish2, "Total_Cost_of_Appliances"
+drm_problem += cost['offpeak']*ev1 + cost['offpeak']*ev2 \
+               + cost['offpeak']*wash1 + cost['offpeak']*wash2 \
+               + cost['offpeak']*dish1 + cost['offpeak']*dish2, "Total_Cost_of_Appliances"
 
 # constraints
-drm_problem += cost_offpeak*ev1 + cost_offpeak*ev2 <= 4.95, "EV_CostRequirement"
-drm_problem += cost_offpeak*wash1 + cost_offpeak*wash2 <= 0.97, "WASH_CostRequirement"
-drm_problem += cost_offpeak*dish1 + cost_offpeak*dish2 <= 0.72, "DISH_CostRequirement"
+drm_problem += cost['offpeak']*ev1 + cost['offpeak']*ev2 <= 4.95, "EV_CostRequirement"
+drm_problem += cost['offpeak']*wash1 + cost['offpeak']*wash2 <= 0.97, "WASH_CostRequirement"
+drm_problem += cost['offpeak']*dish1 + cost['offpeak']*dish2 <= 0.72, "DISH_CostRequirement"
 
 #drm_problem += lpSum([(sum([wash_per_hour, dish_per_hour, ev_per_hour])) * prices[i] for i in prices]) <= 6.64
 
